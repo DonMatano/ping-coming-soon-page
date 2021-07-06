@@ -1,0 +1,26 @@
+<template>
+  <a
+    href="!#"
+    class="
+      border border-secondary-pale-blue
+      p-2
+      rounded-full
+      w-8
+      h-8
+      mx-1
+      focus:outline-none focus:ring focus:border-secondary-pale-blue
+    "
+  >
+    <slot />
+  </a>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "SocialContactAtom",
+});
+</script>
+
+<style lang="scss"></style>
