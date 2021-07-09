@@ -53,13 +53,13 @@
               focus:outline-none
             "
             :class="[
-              !isEmailValid
+              errorText
                 ? 'border-secondary-light-red  focus:border-secondary-light-red'
                 : 'border-secondary-pale-blue focus:border-secondary-pale-blue',
             ]"
           />
           <small
-            v-if="!isEmailValid"
+            v-if="errorText"
             class="
               mt-2
               text-xs
@@ -70,7 +70,7 @@
               md:text-left md:ml-5
             "
           >
-            Please provide a valid email address
+            {{ errorText }}
           </small>
         </div>
         <button
@@ -93,7 +93,7 @@
           :class="[
             isSubscribedSuccessfully ? 'bg-green-500' : 'bg-primary-blue',
           ]"
-          :disabled="!email || !isEmailValid || sendingNotification"
+          :disabled="sendingNotification"
           @click.prevent="sendNotification"
         >
           {{ submitButtonText }}
@@ -127,7 +127,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref } from "vue";
 import SocialContactAtom from "../atoms/SocialContactAtom.vue";
 import TwitterIcon from "../atoms/svgs/TwitterIcon.vue";
 import FacebookIcon from "../atoms/svgs/FacebookIcon.vue";
@@ -138,16 +138,25 @@ export default defineComponent({
   components: { SocialContactAtom, TwitterIcon, FacebookIcon, InstagramIcon },
   setup() {
     const email = ref("");
+    const errorText = ref("");
     const submitButtonText = ref("Notify Me");
     const sendingNotification = ref(false);
     const isSubscribedSuccessfully = ref(false);
-    const isEmailValid = computed(() => {
-      if (!email.value) return true;
+    const isEmailValid = () => {
       const emailValidationRegex =
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return emailValidationRegex.test(email.value.trim().toLowerCase());
-    });
+    };
     const sendNotification = () => {
+      errorText.value = "";
+      if (!email.value) {
+        errorText.value = "Whoops! It looks like you forgot to add your email";
+        return;
+      }
+      if (!isEmailValid()) {
+        errorText.value = "Please provide a valid email address";
+        return;
+      }
       sendingNotification.value = true;
       submitButtonText.value = "Subscribing...";
       setTimeout(() => {
@@ -164,7 +173,7 @@ export default defineComponent({
 
     return {
       email,
-      isEmailValid,
+      errorText,
       isSubscribedSuccessfully,
       submitButtonText,
       sendingNotification,
@@ -173,9 +182,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-/* button:disabled {
-  opacity: 50% !important;
-} */
-</style>
