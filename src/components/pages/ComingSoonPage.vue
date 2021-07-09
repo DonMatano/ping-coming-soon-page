@@ -29,13 +29,13 @@
         class="
           md:self-center
           flex flex-col
-          md:flex-row md:justify-center md:items-center
+          md:flex-row md:justify-center md:items-top
           mx-4
           mt-4
           md:h-11 md:w-2/5
         "
       >
-        <div class="flex flex-col md:w-2/3 md:mr-3 md:mt-7">
+        <div class="flex flex-col md:w-2/3 md:mr-3">
           <input
             type="email"
             name="email"
@@ -53,13 +53,13 @@
               focus:outline-none
             "
             :class="[
-              isEmailValid
+              !isEmailValid
                 ? 'border-secondary-light-red  focus:border-secondary-light-red'
                 : 'border-secondary-pale-blue focus:border-secondary-pale-blue',
             ]"
           />
           <small
-            v-if="isEmailValid"
+            v-if="!isEmailValid"
             class="
               mt-2
               text-xs
@@ -77,21 +77,26 @@
           type="submit"
           class="
             md:w-1/3
+            disabled:opacity-50
             mt-3
             md:mt-0
             px-5
             py-3
             leading-4
             rounded-3xl
-            bg-primary-blue
             text-white
             font-semibold
             text-xs
             shadow-lg
             focus:outline-none focus:ring focus:border-secondary-pale-blue
           "
+          :class="[
+            isSubscribedSuccessfully ? 'bg-green-500' : 'bg-primary-blue',
+          ]"
+          :disabled="!email || !isEmailValid || sendingNotification"
+          @click.prevent="sendNotification"
         >
-          Notify Me
+          {{ submitButtonText }}
         </button>
       </form>
     </div>
@@ -105,22 +110,13 @@
     <footer class="my-3">
       <div class="flex flex-row justify-center">
         <SocialContactAtom>
-          <img
-            src="../../assets/images/facebook.svg"
-            alt="Contact us on Facebook"
-          />
+          <FacebookIcon />
         </SocialContactAtom>
         <SocialContactAtom>
-          <img
-            src="../../assets/images/twitter.svg"
-            alt="Contact us on Twiter"
-          />
+          <TwitterIcon />
         </SocialContactAtom>
         <SocialContactAtom>
-          <img
-            src="../../assets/images/instagram.svg"
-            alt="Contact us on Instagram"
-          />
+          <InstagramIcon />
         </SocialContactAtom>
       </div>
       <small class="text-center text-neutral-gray block my-6"
@@ -133,19 +129,53 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import SocialContactAtom from "../atoms/SocialContactAtom.vue";
+import TwitterIcon from "../atoms/svgs/TwitterIcon.vue";
+import FacebookIcon from "../atoms/svgs/FacebookIcon.vue";
+import InstagramIcon from "../atoms/svgs/InstagramIcon.vue";
 
 export default defineComponent({
   name: "ComingSoonPage",
-  components: { SocialContactAtom },
+  components: { SocialContactAtom, TwitterIcon, FacebookIcon, InstagramIcon },
   setup() {
     const email = ref("");
+    const submitButtonText = ref("Notify Me");
+    const sendingNotification = ref(false);
+    const isSubscribedSuccessfully = ref(false);
     const isEmailValid = computed(() => {
-      if (!email.value) return false;
+      if (!email.value) return true;
       const emailValidationRegex =
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return !emailValidationRegex.test(email.value.trim().toLowerCase());
+      return emailValidationRegex.test(email.value.trim().toLowerCase());
     });
-    return { email, isEmailValid };
+    const sendNotification = () => {
+      sendingNotification.value = true;
+      submitButtonText.value = "Subscribing...";
+      setTimeout(() => {
+        submitButtonText.value = "Subscribed!";
+        isSubscribedSuccessfully.value = true;
+        setTimeout(() => {
+          email.value = "";
+          submitButtonText.value = "Notify me";
+          sendingNotification.value = false;
+          isSubscribedSuccessfully.value = false;
+        }, 1000);
+      }, 2000);
+    };
+
+    return {
+      email,
+      isEmailValid,
+      isSubscribedSuccessfully,
+      submitButtonText,
+      sendingNotification,
+      sendNotification,
+    };
   },
 });
 </script>
+
+<style scoped>
+/* button:disabled {
+  opacity: 50% !important;
+} */
+</style>

@@ -17,7 +17,7 @@ module.exports = {
     },
   },
   variants: {
-    extend: {},
+    opacity: ["responsive", "hover", "focus", "active", "disabled"],
   },
   plugins: [],
 };

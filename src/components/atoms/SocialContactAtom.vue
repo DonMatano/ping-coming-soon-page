@@ -3,6 +3,9 @@
     href="!#"
     class="
       border border-secondary-pale-blue
+      fill-current
+      text-primary-blue
+      hover:text-white hover:border-primary-blue hover:bg-primary-blue
       p-2
       rounded-full
       w-8
